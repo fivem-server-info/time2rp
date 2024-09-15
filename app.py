@@ -1,11 +1,16 @@
 from flask import Flask, jsonify, render_template
-from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
+from flask_apscheduler import APScheduler
 import requests
 import time
 import json
 from datetime import datetime
 
 app = Flask(__name__)
+
+sched = APScheduler()
+sched.api_enabled = True
+sched.init_app(app)
 
 SERVER_URL = "https://servers-frontend.fivem.net/api/servers/single/k8px4v"
 player_data = {}
@@ -126,7 +131,6 @@ def logs_func():
         return render_template("logs.html", server_status=server_status, avatar=avatar)
 
 if __name__ == '__main__':
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=update_player_data, trigger="interval", seconds=10, max_instances=1)
-    scheduler.start()
+    sched.add_job(id="update_player_data", func=update_player_data, trigger="interval", seconds=10, max_instances=1)
+    sched.start()
     app.run(debug=True, use_reloader=False)
