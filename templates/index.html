@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>TimeRP | Whitelisted | time2rp.com</title>
+		<link id="favicon" rel="shortcut icon" href="{{ avatar }}" type="image/x-icon" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+		<script src="{{ url_for('static', filename='js/timer-refresh.js') }}" type="module"></script>
+		<script src="{{ url_for('static', filename='js/index-search.js') }}"></script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				document.getElementById('search').addEventListener('input', function() {
+					const searchTerm = this.value.toLowerCase();
+					const rows = document.querySelectorAll('#player-table tr:not(#table-header)');
+					
+					rows.forEach(row => {
+						const idCell = row.querySelector('.table-id').textContent.toLowerCase();
+						const nameCell = row.querySelector('.table-name').textContent.toLowerCase();
+						
+						// Display row if search term matches either ID or name
+						if (idCell.includes(searchTerm) || nameCell.includes(searchTerm)) {
+							row.style.display = ''; // Show row
+						} else {
+							row.style.display = 'none'; // Hide row
+						}
+					});
+				});
+			});
+		</script>
+
+	</head>
+	<body>
+		<div id="wrapper">
+			<header>
+				<div id="title">
+					<img id="server-icon" src="{{ avatar }}" alt="Server Icon" />
+					{% if server_status == "online" %}
+					<span id="server-name">[🟢] TimeRP | Whitelisted | time2rp.com</span>
+					<span id="server-players" title="Players Online" class="players">[{{ player_count }}/150]</span>
+					{% elif server_status == "offline" %}
+					<span id="server-name">[🔴] TimeRP | Whitelisted | time2rp.com</span>
+					<span id="server-players" title="Players Online" class="players">[0/150]</span>
+					{% else %}
+					<span id="server-name">[🟠] TimeRP | Whitelisted | time2rp.com</span>
+					<span id="server-players" title="Players Online" class="players">[-/150]</span>
+					{% endif %}
+				</div>
+				<div id="other-page">
+					<a href="/logs">
+						<button class="btn">View Logs</button>
+					</a>
+				</div>
+			</header>
+			<section>
+				<input type="text" id="search" placeholder="Search player..." />
+				<div id="refresh-button" class="icon refresh-icon" title="Refresh players">
+					<img src="{{ url_for('static', filename='img/refresh.svg') }}" alt="Refresh">
+					<span id="refresh-timer">30s</span>
+				</div>
+			</section>
+			<table id="player-table">
+				<tr id="table-header" style="background: #171717">
+                    <th class="table-no">No.</th>
+					<th class="table-id">Id</th>
+					<th class="table-name">Name</th>
+					<th class="table-name">Current Session</th>
+					<th class="table-socials">Socials</th>
+					<th class="table-ping">Ping</th>
+				</tr>
+				{% if player_data %}
+				{% for player_id, player_info in player_data.items() %}
+				<tr>
+					<td class="table-no">{{ loop.index }}.</td>
+					<td class="table-id">{{ player_id }}</td>
+					<td class="table-name">{{ player_info['name'] }}</td>
+					<td class="table-name">{{ (current_time - player_info['join_time']) | format_time }}</td>
+					<td class="table-socials">
+						{% if player_info['discord'] %}
+							<a href="https://discord.com/users/{{ player_info['discord'] }}" target="_blank"><img src="{{ url_for('static', filename='img/discord.svg') }}" alt="Discord"></a>
+						{% endif %}
+						{% if player_info['steam'] %}
+							<a href="https://steamcommunity.com/profiles/{{ player_info['steam'] }}" target="_blank"><img src="{{ url_for('static', filename='img/steam.svg') }}" alt="Steam"></a>
+						{% endif %}
+					</td>
+					<td class="table-ping">{{ player_info['ping'] }}</td>
+				</tr>
+				{% endfor %}
+				{% else %}
+					<td class="table-no">---</td>
+					<td class="table-id">---</td>
+					<td class="table-name">---</td>
+					<td class="table-name">---</td>
+					<td class="table-socials">---</td>
+					<td class="table-ping">---</td>
+				{% endif %}
+				<tr class="table-footer" style="background: #171717">
+					<td rowspan="5">
+                        <span>This page is not affiliated with FiveM or time2rp.</span><br />
+                        <span>Created by <a href="https://www.google.com" target="_blank">Unknown</a>.</span>
+                    </th>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

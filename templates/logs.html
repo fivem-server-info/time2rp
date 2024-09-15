@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>TimeRP | Whitelisted | time2rp.com</title>
+		<link id="favicon" rel="shortcut icon" href="{{ avatar }}" type="image/x-icon" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+		<script src="{{ url_for('static', filename='js/timer-refresh.js') }}" type="module"></script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				document.getElementById('search').addEventListener('input', function() {
+					const searchTerm = this.value.toLowerCase();
+					console.log("Search Term: ", searchTerm); // Debugging line
+					const rows = document.querySelectorAll('#log-table tr:not(#table-header)');
+					
+					rows.forEach(row => {
+						const idCell = row.querySelector('.table-id').textContent.toLowerCase();
+						const logCell = row.querySelector('.table-log').textContent.toLowerCase();
+						console.log("ID Cell: ", idCell, " Log Cell: ", logCell); // Debugging line
+						
+						// Display row if search term matches either ID or log
+						if (idCell.includes(searchTerm) || logCell.includes(searchTerm)) {
+							row.style.display = ''; // Show row
+						} else {
+							row.style.display = 'none'; // Hide row
+						}
+					});
+				});
+			});
+		</script>
+
+	</head>
+	<body>
+		<div id="wrapper">
+			<header>
+				<div id="title">
+					<img id="server-icon" src="{{ avatar }}" alt="Server Icon" />
+					{% if server_status == "online" %}
+					<span id="server-name">[🟢] TimeRP | Whitelisted | time2rp.com</span>
+					<span id="server-players" title="Players Online" class="players">[{{ player_count }}/150]</span>
+					{% elif server_status == "offline" %}
+					<span id="server-name">[🔴] TimeRP | Whitelisted | time2rp.com</span>
+					<span id="server-players" title="Players Online" class="players">[0/150]</span>
+					{% else %}
+					<span id="server-name">[🟠] TimeRP | Whitelisted | time2rp.com</span>
+					<span id="server-players" title="Players Online" class="players">[-/150]</span>
+					{% endif %}
+				</div>
+				<div id="other-page">
+					<a href="/players">
+						<button class="btn">View Players</button>
+					</a>
+				</div>
+			</header>
+			<section>
+				<input type="text" id="search" placeholder="Search player..." />
+				<div id="refresh-button" class="icon refresh-icon" title="Refresh players">
+					<img src="{{ url_for('static', filename='img/refresh.svg') }}" alt="Refresh">
+					<span id="refresh-timer">30s</span>
+				</div>
+			</section>
+			<table id="log-table">
+				<tr id="table-header" style="background: #171717">
+                    <th class="table-time">Time</th>
+					<th class="table-id">ID</th>
+					<th class="table-log">Log</th>
+				</tr>
+				{% if logs %}
+				{% for log in logs|reverse %}
+				<tr>
+					<td class="table-time">{{ log[0] }}</td>
+					<th class="table-id">{{ log[1] }}</th>
+					<td class="table-log">{{ log[2]|safe }}</td>
+				</tr>
+				{% endfor %}
+				{% else %}
+				<tr>
+					<td class="table-time">---</td>
+					<th class="table-id">---</th>
+					<td class="table-log">---</td>
+				</tr>
+				{% endif %}
+				<tr class="table-footer" style="background: #171717">
+					<td rowspan="5">
+                        <span>This page is not affiliated with FiveM or time2rp.</span><br />
+                        <span>Created by <a href="https://www.google.com" target="_blank">Unknown</a>.</span>
+                    </th>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>
